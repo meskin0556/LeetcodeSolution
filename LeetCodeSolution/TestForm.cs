@@ -25,5 +25,10 @@ namespace LeetCodeSolution
             int[] num2 = textBox2.Text.Split(',').Select(x => int.Parse(x)).ToArray();
             label1.Text = sol.FindMedianSortedArrays(num1, num2).ToString();
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            label2.Text = sol.IsNumber(textBox3.Text).ToString() ;
+        }
     }
 }

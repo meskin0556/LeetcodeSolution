@@ -133,6 +133,88 @@ namespace LeetCodeSolution
             }
         }
 
+        //65. Valid Number
+        //Validate if a given string can be interpreted as a decimal number.
+
+        //Some examples:
+        //"0" => true
+        //" 0.1 " => true
+        //"abc" => false
+        //"1 a" => false
+        //"2e10" => true
+        //" -90e3   " => true
+        //" 1e" => false
+        //"e3" => false
+        //" 6e-1" => true
+        //" 99e2.5 " => false
+        //"53.5e93" => true
+        //" --6 " => false
+        //"-+3" => false
+        //"95a54e53" => false
+
+        //Note: It is intended for the problem statement to be ambiguous. You should gather all requirements up front before implementing one. However, here is a list of characters that can be in a valid decimal number:
+
+        //    Numbers 0-9
+        //    Exponent - "e"
+        //    Positive/negative sign - "+"/"-"
+        //    Decimal point - "."
+
+        //Of course, the context of these characters also matters in the input.
+
+        //Update (2015-02-10):
+        //The signature of the C++ function had been updated.If you still see your function signature accepts a const char* argument, please click the reload button to reset your code definition.
+        public bool IsNumber(string s)
+        {
+            char[] chars = s.Trim().ToCharArray();
+            if (s.Length == 0) return false;
+            bool eExist = false;
+            bool signExist = false;
+            bool numExist = false;
+            bool dotExist = false;
+
+            for (int i = 0; i < s.Length; i++)
+            {
+                char oldChar = '0';
+                if (i > 0)
+                    oldChar = s[i - 1];
+                char newChar = s[i];
+                switch (newChar)
+                {
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        numExist = true;
+                        break;
+                    case '.':
+                        if (dotExist || s.Length == 1 || eExist || (s.Length == 2 && signExist)) return false;
+                        else dotExist = true;
+                        break;
+
+                    case 'e':
+                        if (eExist || !numExist || s.Length == 1 || i == s.Length - 1) return false;
+                        else eExist = true;
+                        break;
+                    case '+':
+                    case '-':
+                        if ((signExist && !eExist) || oldChar == '+' || oldChar == '-' || oldChar == '.' || s.Length == 1 || i == s.Length - 1 || (!eExist && i != 0)) return false;
+                        else signExist = true;
+                        break;
+
+
+                    default:
+                        return false;
+                }
+            }
+            return true;
+
+        }
 
     }
 }
