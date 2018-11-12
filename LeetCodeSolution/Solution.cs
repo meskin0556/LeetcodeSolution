@@ -165,7 +165,7 @@ namespace LeetCodeSolution
         //The signature of the C++ function had been updated.If you still see your function signature accepts a const char* argument, please click the reload button to reset your code definition.
         public bool IsNumber(string s)
         {
-            char[] chars = s.Trim().ToCharArray();
+            s = s.Trim();
             if (s.Length == 0) return false;
             bool eExist = false;
             bool signExist = false;
@@ -215,6 +215,364 @@ namespace LeetCodeSolution
             return true;
 
         }
+
+        //149. Max Points on a Line
+        //Given n points on a 2D plane, find the maximum number of points that lie on the same straight line.
+
+        //Example 1:
+
+        //Input: [[1,1],[2,2],[3,3]]
+        //Output: 3
+        //Explanation:
+        //^
+        //|
+        //|        o
+        //|     o
+        //|  o  
+        //+------------->
+        //0  1  2  3  4
+
+        //Example 2:
+
+        //Input: [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]
+        //Output: 4
+        //Explanation:
+        //^
+        //|
+        //|  o
+        //|     o o
+        //|        o
+        //|  o o
+        //+------------------->
+        //0  1  2  3  4  5  6
+
+
+        public class Point
+        {
+            public int x;
+            public int y;
+            public Point() { x = 0; y = 0; }
+            public Point(int a, int b) { x = a; y = b; }
+        }
+
+        private class Line
+        {
+            public double slope;
+            public double offset;
+            public Line(double slope, double offset) { this.slope = slope; this.offset = offset; }
+            public Line(Point A, Point B)
+            {
+                if (A.x == B.x)
+                {
+                    slope = 0;
+                }
+                else
+                {
+                    slope = (double)((A.y - B.y) / (A.x - B.x));
+                }
+
+                offset = A.y - A.y * slope;
+            }
+        }
+        private class LineEqualityComparer : IEqualityComparer<Line>
+        {
+            #region IEqualityComparer<Customer> Members
+
+            public bool Equals(Line x, Line y)
+            {
+                return ((x.slope == y.slope) && (x.offset == y.offset));
+            }
+
+            public int GetHashCode(Line obj)
+            {
+
+                return obj.slope.GetHashCode() + obj.offset.GetHashCode();
+            }
+
+            #endregion
+        }
+        public int MaxPoints(Point[] points)
+        {
+            if (points.Length < 3) return points.Length;
+            Dictionary<string, HashSet<int>> allLines = new Dictionary<string, HashSet<int>>();
+            //var lineEqualityComparer = new LineEqualityComparer();
+            Point A, B;
+            decimal slope, offset;
+            for (int i = 0; i < points.Length - 1; i++)
+            {
+                A = points[i];
+                for (int j = i + 1; j < points.Length; j++)
+                {
+                    B = points[j];
+                    //if (A.x == B.x && A.y == B.y)
+                    //{
+                    //    foreach (HashSet<int> set in allLines.Values)
+                    //    {
+                    //        if (set.Contains(i) && !set.Contains(j))
+                    //            set.Add(j);
+                    //        if (!set.Contains(i) && set.Contains(j))
+                    //            set.Add(i);
+                    //    }
+                    //}
+
+                    if (A.x == B.x)
+                    {
+                        slope = 9999999;
+                        offset = B.x;
+                    }
+                    else
+                    {
+                        slope = ((decimal)A.y - (decimal)B.y) / ((decimal)A.x - (decimal)B.x);
+                        offset = (decimal)(A.y + B.y) - (decimal)(A.x + B.x) * slope;
+                    }
+
+                    //double[] line = new double[] { slope, offset };
+                    string line = slope.ToString() + "|" + offset.ToString();
+                    if (allLines.Keys.Contains(line))
+                    {
+                        if (!allLines[line].Contains(i))
+                        {
+                            allLines[line].Add(i);
+                        }
+                        if (!allLines[line].Contains(j))
+                        {
+                            allLines[line].Add(j);
+                        }
+                    }
+                    else
+                    {
+                        HashSet<int> set = new HashSet<int>();
+                        set.Add(i);
+                        set.Add(j);
+                        allLines.Add(line, set);
+                    }
+                }
+
+
+            }
+            int maxValue = 0;
+
+
+            foreach (KeyValuePair<string, HashSet<int>> item in allLines)
+            {
+                if (maxValue < item.Value.Count)
+                    maxValue = item.Value.Count;
+            }
+
+            return maxValue;
+
+        }
+
+        //146. LRU Cache
+        //Design and implement a data structure for Least Recently Used(LRU) cache.It should support the following operations: get and put.
+
+        //get(key) - Get the value(will always be positive) of the key if the key exists in the cache, otherwise return -1.
+        //put(key, value) - Set or insert the value if the key is not already present.When the cache reached its capacity, it should invalidate the least recently used item before inserting a new item.
+
+        //Follow up:
+        //Could you do both operations in O(1) time complexity?
+
+        //Example:
+
+        //LRUCache cache = new LRUCache(2 /* capacity */ );
+
+        //        cache.put(1, 1);
+        //cache.put(2, 2);
+        //cache.get(1);       // returns 1
+        //cache.put(3, 3);    // evicts key 2
+        //cache.get(2);       // returns -1 (not found)
+        //cache.put(4, 4);    // evicts key 1
+        //cache.get(1);       // returns -1 (not found)
+        //cache.get(3);       // returns 3
+        //cache.get(4);       // returns 4、
+
+        /**
+     * Your LRUCache object will be instantiated and called as such:
+     * LRUCache obj = new LRUCache(capacity);
+     * int param_1 = obj.Get(key);
+     * obj.Put(key,value);
+     */
+
+        public class LRUCache
+        {
+            private Dictionary<int, int> store;
+            private List<int> history;
+
+
+            public LRUCache(int capacity)
+            {
+                store = new Dictionary<int, int>(capacity);
+                history = new List<int>(capacity);
+
+            }
+
+            public int Get(int key)
+            {
+                if (store.ContainsKey(key))
+                {
+                    history.Remove(key);
+                    history.Insert(0, key);
+                    return store[key];
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+
+            public void Put(int key, int value)
+            {
+                if (store.ContainsKey(key))
+                {
+                    store[key] = value;
+                    history.Remove(key);
+                    history.Insert(0, key);
+                    return;
+                }
+                if (history.Capacity == history.Count)
+                {
+                    int outKey = history.Last();
+                    store.Remove(outKey);
+                    history.Remove(outKey);
+                    store.Add(key, value);
+                    history.Insert(0, key);
+                }
+                else
+                {
+                    store.Add(key, value);
+                    history.Insert(0, key);
+                }
+            }
+        }
+
+
+        //564. Find the Closest Palindrome
+        //Given an integer n, find the closest integer(not including itself), which is a palindrome.
+
+        //The 'closest' is defined as absolute difference minimized between two integers.
+
+
+        //Example 1:
+
+
+        //Input: "123"
+        //Output: "121"
+
+
+        //Note:
+
+
+        //The input n is a positive integer represented by string, whose length will not exceed 18.
+
+        //If there is a tie, return the smaller one as answer.
+        public string NearestPalindromic(string n)
+        {
+            int length = n.Length;
+            if (length == 1) return (long.Parse(n) - 1).ToString();
+            if (n == Math.Pow(10, length - 1).ToString()) return (long.Parse(n) - 1).ToString();
+            if (n == (Math.Pow(10, length - 1) + 1).ToString()) return (long.Parse(n) - 2).ToString();
+            if (n == (Math.Pow(10, length) - 1).ToString()) return (long.Parse(n) + 2).ToString();
+            if (length % 2 == 0)
+            {
+
+                string left = n.Substring(0, length / 2);
+                string leftUp = (long.Parse(left) + 1).ToString();
+                string leftDn = (long.Parse(left) - 1).ToString();
+
+                long result = long.Parse(left + Reverse(left));
+                long delta = Math.Abs(result - long.Parse(n));
+                if (delta == 0) delta = long.MaxValue;
+
+                long resultUp = long.Parse(leftUp + Reverse(leftUp));
+                long deltaUp = Math.Abs(resultUp - long.Parse(n));
+
+                long resultDn = long.Parse(leftDn + Reverse(leftDn));
+                long deltaDn = Math.Abs(resultDn - long.Parse(n));
+
+                if (delta <= deltaUp && delta < deltaDn) return result.ToString();
+                if (deltaUp < delta && deltaUp < deltaDn) return resultUp.ToString();
+                if (deltaDn <= deltaUp && deltaDn <= delta) return resultDn.ToString();
+                
+                return "";
+
+
+            }
+            else
+            {
+                string left = n.Substring(0, (length + 1) / 2);
+
+                string leftUp = (long.Parse(left) + 1).ToString();
+                string leftDn = (long.Parse(left) - 1).ToString();
+
+                long result = long.Parse(left + Reverse(left).Substring(1));
+                long delta = Math.Abs(result - long.Parse(n));
+                if (delta == 0) delta = int.MaxValue;
+
+                long resultUp = long.Parse(leftUp + Reverse(leftUp).Substring(1));
+                long deltaUp = Math.Abs(resultUp - long.Parse(n));
+
+                long resultDn = long.Parse(leftDn + Reverse(leftDn).Substring(1));
+                long deltaDn = Math.Abs(resultDn - long.Parse(n));
+
+
+                if (delta <= deltaUp && delta < deltaDn) return result.ToString();
+                if (deltaUp < delta && deltaUp < deltaDn) return resultUp.ToString();
+                if (deltaDn <= deltaUp && deltaDn <= delta) return resultDn.ToString();
+                return "";
+            }
+
+        }
+
+        private string Reverse(string input)
+        {
+            char[] charArray = input.ToCharArray();
+            Array.Reverse(charArray);
+            return new string(charArray);
+        }
+        //126. Word Ladder II
+        //Given two words(beginWord and endWord), and a dictionary's word list, find all shortest transformation sequence(s) from beginWord to endWord, such that:
+
+        //Only one letter can be changed at a time
+        //Each transformed word must exist in the word list.Note that beginWord is not a transformed word.
+
+        //Note:
+
+        //Return an empty list if there is no such transformation sequence.
+
+        //All words have the same length.
+
+        //All words contain only lowercase alphabetic characters.
+        //You may assume no duplicates in the word list.
+        //You may assume beginWord and endWord are non-empty and are not the same.
+
+
+        //Example 1:
+
+
+        //Input:
+        //beginWord = "hit",
+        //endWord = "cog",
+        //wordList = ["hot", "dot", "dog", "lot", "log", "cog"]
+
+
+        //Output:
+        //[
+        //  ["hit","hot","dot","dog","cog"],
+        // ["hit","hot","lot","log","cog"]
+        //]
+
+        //Example 2:
+
+        //Input:
+        //beginWord = "hit"
+        //endWord = "cog"
+        //wordList = ["hot","dot","dog","lot","log"]
+
+        //Output: []
+
+        //Explanation: The endWord "cog" is not in wordList, therefore no possible transformation.
+
+
 
     }
 }
