@@ -88,5 +88,10 @@ namespace LeetCodeSolution
         {
             string result = sol.NearestPalindromic("1283");
         }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            string result = sol.LongestPalindrome("babad");
+        }
     }
 }

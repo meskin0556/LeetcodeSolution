@@ -492,7 +492,7 @@ namespace LeetCodeSolution
                 if (delta <= deltaUp && delta < deltaDn) return result.ToString();
                 if (deltaUp < delta && deltaUp < deltaDn) return resultUp.ToString();
                 if (deltaDn <= deltaUp && deltaDn <= delta) return resultDn.ToString();
-                
+
                 return "";
 
 
@@ -529,50 +529,153 @@ namespace LeetCodeSolution
             Array.Reverse(charArray);
             return new string(charArray);
         }
-        //126. Word Ladder II
-        //Given two words(beginWord and endWord), and a dictionary's word list, find all shortest transformation sequence(s) from beginWord to endWord, such that:
 
-        //Only one letter can be changed at a time
-        //Each transformed word must exist in the word list.Note that beginWord is not a transformed word.
-
-        //Note:
-
-        //Return an empty list if there is no such transformation sequence.
-
-        //All words have the same length.
-
-        //All words contain only lowercase alphabetic characters.
-        //You may assume no duplicates in the word list.
-        //You may assume beginWord and endWord are non-empty and are not the same.
-
+        //5. Longest Palindromic Substring
+        //Given a string s, find the longest palindromic substring in s.You may assume that the maximum length of s is 1000.
 
         //Example 1:
 
-
-        //Input:
-        //beginWord = "hit",
-        //endWord = "cog",
-        //wordList = ["hot", "dot", "dog", "lot", "log", "cog"]
-
-
-        //Output:
-        //[
-        //  ["hit","hot","dot","dog","cog"],
-        // ["hit","hot","lot","log","cog"]
-        //]
+        //Input: "babad"
+        //Output: "bab"
+        //Note: "aba" is also a valid answer.
 
         //Example 2:
 
-        //Input:
-        //beginWord = "hit"
-        //endWord = "cog"
-        //wordList = ["hot","dot","dog","lot","log"]
+        //Input: "cbbd"
+        //Output: "bb"
+        public string LongestPalindrome(string s)
+        {
+            if (s.Length == 0) return "";
+            if (s.Length == 1) return s;
+            if (s.Length == 2)
+            {
+                if (s[0] == s[1]) return s;
+                else return s[0].ToString();
+            }
+            //Dictionary<int, string> Palindrome = new Dictionary<int, string>();
 
-        //Output: []
-
-        //Explanation: The endWord "cog" is not in wordList, therefore no possible transformation.
-
+            int startindex=1 ;
+            int maxLength=1 ;
 
 
+            for (int i = 1; i < s.Length; i++)
+            {
+                // find ABA
+                int left = i - 1;
+                int right = i + 1;
+                //Palindrome.Add(i, s[i].ToString());
+                while (left >= 0 && right < s.Length)
+                {
+                    if (s[left] == s[right])
+                    {
+                        //Palindrome[i] = s[left] + Palindrome[i] + s[right];
+                        if (maxLength < right - left + 1)
+                        {
+                            maxLength = right-left + 1;
+                            startindex = left;
+                        }
+                        left--;
+                        right++;
+                    }
+                    else
+                    {
+
+                        break;
+                    }
+
+                }
+                //find ABBA 
+                if (s[i - 1] == s[i])
+                {
+                    //Palindrome.Add(-i, s[i - 1].ToString() + s[i].ToString());
+                    if(maxLength<2)
+                    {
+                        startindex = i - 1;
+                        maxLength = 2;
+                    }
+                    left = i - 2;
+                    right = i + 1;
+                    while (left >= 0 && right < s.Length)
+                    {
+                        if (s[left] == s[right])
+                        {
+                            //Palindrome[-i] = s[left] + Palindrome[-i] + s[right];
+                            if (maxLength < right - left + 1)
+                            {
+                                maxLength = right - left + 1;
+                                startindex = left;
+                            }
+                            left--;
+                            right++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+
+                    }
+
+                }
+            }
+            return s.Substring(startindex, maxLength);
+            //string longest = "";
+            //foreach (KeyValuePair<int, string> item in Palindrome)
+            //{
+            //    if (item.Value.Length > longest.Length)
+            //        longest = item.Value;
+            //}
+            //return longest;
+
+
+
+        }
     }
 }
+
+
+
+
+//126. Word Ladder II
+//Given two words(beginWord and endWord), and a dictionary's word list, find all shortest transformation sequence(s) from beginWord to endWord, such that:
+
+//Only one letter can be changed at a time
+//Each transformed word must exist in the word list.Note that beginWord is not a transformed word.
+
+//Note:
+
+//Return an empty list if there is no such transformation sequence.
+
+//All words have the same length.
+
+//All words contain only lowercase alphabetic characters.
+//You may assume no duplicates in the word list.
+//You may assume beginWord and endWord are non-empty and are not the same.
+
+
+//Example 1:
+
+
+//Input:
+//beginWord = "hit",
+//endWord = "cog",
+//wordList = ["hot", "dot", "dog", "lot", "log", "cog"]
+
+
+//Output:
+//[
+//  ["hit","hot","dot","dog","cog"],
+// ["hit","hot","lot","log","cog"]
+//]
+
+//Example 2:
+
+//Input:
+//beginWord = "hit"
+//endWord = "cog"
+//wordList = ["hot","dot","dog","lot","log"]
+
+//Output: []
+
+//Explanation: The endWord "cog" is not in wordList, therefore no possible transformation.
+
+
